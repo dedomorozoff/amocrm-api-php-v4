@@ -24,5 +24,5 @@ class AmoIncomingLeadForm extends AmoIncomingLead
      * Путь для запроса к API
      * @var string
      */
-    const URL = '/api/v2/incoming_leads/form';
+    const URL = '/api/v4/leads/unsorted';
 }

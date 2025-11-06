@@ -36,7 +36,7 @@ trait AmoAPIWebhooks
             'subscribe' => $params
         ];
 
-        $response = self::request('/api/v2/webhooks/subscribe', 'POST', $params, $subdomain);
+        $response = self::request('/api/v4/webhooks/subscribe', 'POST', $params, $subdomain);
 
         if (! $returnResponse) {
             return self::getItems($response);
@@ -63,7 +63,7 @@ trait AmoAPIWebhooks
             'unsubscribe' => $params
         ];
 
-        $response = self::request('/api/v2/webhooks/unsubscribe', 'POST', $params, $subdomain);
+        $response = self::request('/api/v4/webhooks/unsubscribe', 'POST', $params, $subdomain);
 
         if (! $returnResponse) {
             return self::getItems($response);

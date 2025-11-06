@@ -160,31 +160,39 @@ trait AmoAPIGetAllEntities
 
     /**
      * Загружает полный список элементов каталога
+     * @param int $catalogId ID каталога (обязательный параметр для v4 API)
      * @param array $params Параметры для фильтрации
      * @param bool $returnResponse Вернуть ответ сервера amoCRM
      * @param string $subdomain Поддомен amoCRM
      * @return Generator
      */
     public static function getAllCatalogElements(
+        int $catalogId,
         array $params = [],
         bool $returnResponse = false,
         $subdomain = null
     ) : Generator {
+        $params['limit_rows'] = $params['limit_rows'] ?? self::$limitRows;
+        $params['limit_offset'] = $params['limit_offset'] ?? 0;
+
         while (true) {
-            $params['page'] = $params['page'] ?? 1;
-            $response = self::request('/api/v2/catalog_elements', 'GET', $params, $subdomain);
+            $response = self::request("/api/v4/catalogs/{$catalogId}/elements", 'GET', $params, $subdomain);
             if (is_null($response)) {
                 break;
             }
 
             $items = self::getItems($response);
-            if (is_null($items)) {
+            if (is_null($items) || empty($items)) {
                 break;
             }
 
             yield $returnResponse ? $response : $items;
 
-            $params['page']++;
+            if (count($items) < $params['limit_rows']) {
+                break;
+            }
+
+            $params['limit_offset'] += $params['limit_rows'];
         }
     }
 }

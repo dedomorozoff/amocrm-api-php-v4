@@ -121,7 +121,7 @@ trait AmoAPIGetEntities
      */
     public static function getWebhooks(array $params = [], bool $returnResponse = false, $subdomain = null)
     {
-        $response = self::request('/api/v2/webhooks', 'GET', $params, $subdomain);
+        $response = self::request('/api/v4/webhooks', 'GET', $params, $subdomain);
         if (!$returnResponse) {
             return self::getItems($response);
         }
@@ -222,7 +222,7 @@ trait AmoAPIGetEntities
      */
     public static function getIncomingLeads(array $params = [], bool $returnResponse = false, $subdomain = null)
     {
-        $response = self::request('/api/v2/incoming_leads', 'GET', $params, $subdomain);
+        $response = self::request('/api/v4/leads/unsorted', 'GET', $params, $subdomain);
         if (!$returnResponse) {
             return self::getItems($response);
         }
@@ -231,6 +231,7 @@ trait AmoAPIGetEntities
 
     /**
      * Загружает сводную информацию о неразобранных сделках
+     * ВНИМАНИЕ: Этот метод использует API v2, так как аналог в v4 может отсутствовать или иметь другую структуру
      * @return array | null
      */
     public static function getIncomingLeadsSummary(array $params = [], bool $returnResponse = true, $subdomain = null)
@@ -270,7 +271,7 @@ trait AmoAPIGetEntities
      */
     public static function getCatalogs(array $params = [], bool $returnResponse = false, $subdomain = null)
     {
-        $response = self::request('/api/v2/catalogs', 'GET', $params, $subdomain);
+        $response = self::request('/api/v4/catalogs', 'GET', $params, $subdomain);
         if (!$returnResponse) {
             return self::getItems($response);
         }
@@ -279,11 +280,15 @@ trait AmoAPIGetEntities
 
     /**
      * Загружает перечень элементов каталога
+     * @param int $catalogId ID каталога (обязательный параметр для v4 API)
+     * @param array $params Параметры запроса
+     * @param bool $returnResponse Вернуть ответ сервера amoCRM
+     * @param string $subdomain Поддомен amoCRM
      * @return array | null
      */
-    public static function getCatalogElements(array $params = [], bool $returnResponse = false, $subdomain = null)
+    public static function getCatalogElements(int $catalogId, array $params = [], bool $returnResponse = false, $subdomain = null)
     {
-        $response = self::request('/api/v2/catalog_elements', 'GET', $params, $subdomain);
+        $response = self::request("/api/v4/catalogs/{$catalogId}/elements", 'GET', $params, $subdomain);
         if (!$returnResponse) {
             return self::getItems($response);
         }

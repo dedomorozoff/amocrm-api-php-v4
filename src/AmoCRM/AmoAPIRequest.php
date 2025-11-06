@@ -109,6 +109,13 @@ trait AmoAPIRequest
     public static $amoTimeout = 30; // Секунды
 
     /**
+     * Каталог для хранения файлов cookie относительно каталога файла класса AmoAPI (на конце /)
+     * Определено также в AmoAPIAuth для совместимости
+     * @var string
+     */
+    public static $cookieFileDir = 'cookies/';
+
+    /**
      * Количество секунд, которое добавляется к параметру updated_at при обновлении сущности
      * @var int
      */
@@ -149,7 +156,7 @@ trait AmoAPIRequest
         102 => 'POST-параметры должны передаваться в формате JSON',
         103 => 'Параметры не переданы',
         104 => 'Запрашиваемый метод API не найден',
-                
+
         301 => 'Moved permanently',
         400 => 'Bad request',
         401 => 'Unauthorized',
@@ -158,7 +165,7 @@ trait AmoAPIRequest
         500 => 'Internal server error',
         502 => 'Bad gateway',
         503 => 'Service unavailable',
-        
+
         // Ошибки возникающие при работе со сделками
         213 => 'Добавление сделок: пустой массив',
         214 => 'Добавление/Обновление сделок: пустой запрос',
@@ -166,7 +173,7 @@ trait AmoAPIRequest
         216 => 'Обновление сделок: пустой массив',
         217 => 'Обновление сделок: требуются параметры "id", "updated_at", "status_id", "name"',
         240 => 'Добавление/Обновление сделок: неверный параметр "id" дополнительного поля',
-        
+
         // Ошибки возникающие при работе с событиями
         218 => 'Добавление событий: пустой массив',
         221 => 'Список событий: требуется тип',
@@ -175,7 +182,7 @@ trait AmoAPIRequest
         223 => 'Добавление/Обновление событий: неверный запрашиваемый метод (GET вместо POST)',
         224 => 'Обновление событий: пустой массив',
         225 => 'Обновление событий: события не найдены',
-        
+
         // Ошибки возникающие при работе с контактами
         201 => 'Добавление контактов: пустой массив',
         202 => 'Добавление контактов: нет прав',
@@ -190,7 +197,7 @@ trait AmoAPIRequest
         211 => 'Обновление контактов: дополнительное поле не найдено',
         212 => 'Обновление контактов: контакт не обновлён',
         219 => 'Список контактов: ошибка поиска, повторите запрос позднее',
-        
+
         // Ошибки возникающие при работе с задачами
         227 => 'Добавление задач: пустой массив',
         228 => 'Добавление/Обновление задач: пустой запрос',
@@ -324,7 +331,7 @@ trait AmoAPIRequest
             'params'    => $params,
             'subdomain' => $subdomain
         ];
-        
+
         // Увеличиваем счетчик числа отправленных запросов
         self::$requestCounter++;
 
@@ -345,13 +352,13 @@ trait AmoAPIRequest
 
                 // Добавляем заголовки HTTP
                 self::setHTTPHeaders($curl, $subdomain, false);
-    
+
                 // Отладочная информация
                 $requestInfo = " (GET: {$url})";
                 self::debug('['. self::$requestCounter . "] GET: {$url}");
-    
+
                 break;
-    
+
             case 'POST':
                 // Кодируем тело запроса
                 $jsonParams = json_encode($params);
@@ -371,7 +378,7 @@ trait AmoAPIRequest
                 $jsonParams = self::unescapeUnicode($jsonParams);
                 $requestInfo = " (POST: {$url} {$jsonParams})";
                 self::debug('['. self::$requestCounter . "] POST: {$url}" . PHP_EOL . $jsonParams);
-    
+
                 break;
 
                 case 'DELETE':
@@ -385,15 +392,15 @@ trait AmoAPIRequest
                     }
                     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
                     curl_setopt($curl, CURLOPT_POSTFIELDS, $jsonParams);
-    
+
                     // Добавляем заголовки HTTP
                     self::setHTTPHeaders($curl, $subdomain, true);
-    
+
                     // Отладочная информация
                     $jsonParams = self::unescapeUnicode($jsonParams);
                     $requestInfo = " (DELETE: {$url} {$jsonParams})";
                     self::debug('['. self::$requestCounter . "] DELETE: {$url}" . PHP_EOL . $jsonParams);
-        
+
                     break;
 
                 case 'PATCH':
@@ -407,17 +414,17 @@ trait AmoAPIRequest
                     }
                     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PATCH');
                     curl_setopt($curl, CURLOPT_POSTFIELDS, $jsonParams);
-    
+
                     // Добавляем заголовки HTTP
                     self::setHTTPHeaders($curl, $subdomain, true);
-    
+
                     // Отладочная информация
                     $jsonParams = self::unescapeUnicode($jsonParams);
                     $requestInfo = " (PATCH: {$url} {$jsonParams})";
                     self::debug('['. self::$requestCounter . "] PATCH: {$url}" . PHP_EOL . $jsonParams);
-        
+
                     break;
-    
+
             case 'AJAX':
                 // Кодируем тело запроса
                 $ajaxParams = http_build_query($params);
@@ -744,7 +751,7 @@ trait AmoAPIRequest
         // Проверяем каталог для хранения файлов блокировки
         $dir = __DIR__ . DIRECTORY_SEPARATOR . self::$lockEntityDir;
         self::checkDir($dir);
-        
+
         // Формируем полное имя файла блокировки
         $fileName = $amoObject->id . '.' . substr(strtolower(get_class($amoObject)), 10);
         $file = $dir . $fileName;
@@ -761,7 +768,7 @@ trait AmoAPIRequest
             if (flock($fh, LOCK_EX|LOCK_NB)) {
                 return [ 'fh' => $fh, 'file' => $file, 'fileName' => $fileName ];
             }
-            
+
             if (! fclose($fh)) {
                 throw new AmoAPIException("Не удалось закрыть lock-файл {$fileName}");
             }

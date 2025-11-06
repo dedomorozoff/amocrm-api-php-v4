@@ -423,12 +423,35 @@ abstract class AmoObject
         }
 
         if (!$returnResponse) {
-            if (isset($items['_embedded']['custom_fields'])) {
-                return $items['_embedded']['custom_fields'][0]['id'];
-            } elseif(isset($items['_embedded']['leads'])) {
-                return $items['_embedded']['leads'][0]['id'];
+            // В v4 ответ обрабатывается через getItems(), который возвращает массив сущностей
+            // Проверяем различные варианты структуры ответа
+            if (is_array($items) && !empty($items)) {
+                // Если это массив сущностей, возвращаем ID первой
+                if (isset($items[0]['id'])) {
+                    return $items[0]['id'];
+                }
+                // Если это одна сущность (не массив)
+                if (isset($items['id'])) {
+                    return $items['id'];
+                }
             }
-                return $items[0]['id'];
+            // Fallback: проверяем полный ответ на случай, если getItems() вернул не то
+            if (isset($response['_embedded'])) {
+                $embedded = $response['_embedded'];
+                if (isset($embedded['leads'][0]['id'])) return $embedded['leads'][0]['id'];
+                if (isset($embedded['contacts'][0]['id'])) return $embedded['contacts'][0]['id'];
+                if (isset($embedded['companies'][0]['id'])) return $embedded['companies'][0]['id'];
+                if (isset($embedded['tasks'][0]['id'])) return $embedded['tasks'][0]['id'];
+                if (isset($embedded['events'][0]['id'])) return $embedded['events'][0]['id'];
+                if (isset($embedded['notes'][0]['id'])) return $embedded['notes'][0]['id'];
+                if (isset($embedded['catalogs'][0]['id'])) return $embedded['catalogs'][0]['id'];
+                if (isset($embedded['custom_fields'][0]['id'])) return $embedded['custom_fields'][0]['id'];
+            }
+            // Если ничего не найдено, пробуем вернуть первый элемент массива
+            if (is_array($items) && count($items) > 0) {
+                return reset($items)['id'] ?? null;
+            }
+            throw new AmoAPIException("Не удалось получить ID созданной/обновленной сущности из ответа");
         }
 
         return $response;
