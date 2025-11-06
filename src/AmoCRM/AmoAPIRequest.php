@@ -474,12 +474,12 @@ trait AmoAPIRequest
 
         // Если код статуса HTTP 401 (401 Unauthorized), то выполняем, при необходимости, повторную авторизацию
         if ($code === 401) {
-            // Если авторизация по постоянному токену, то повторная авторизация не требуется
-            // Постоянные токены не обновляются, если токен недействителен - это ошибка конфигурации
+            // Если авторизация по долгосрочному токену, то повторная авторизация не требуется
+            // Долгосрочные токены не обновляются, если токен недействителен - это ошибка конфигурации
             if (isset(self::$lastAuth[$subdomain]['is_permanent_token']) 
                 && self::$lastAuth[$subdomain]['is_permanent_token'] === true) {
                 throw new AmoAPIException(
-                    "Постоянный токен недействителен или был отозван для поддомена {$subdomain}. " .
+                    "Долгосрочный токен недействителен или был отозван для поддомена {$subdomain}. " .
                     "Проверьте токен в настройках аккаунта amoCRM. {$requestInfo} (Response: {$result})",
                     401
                 );
@@ -600,7 +600,7 @@ trait AmoAPIRequest
         // Список НТТP-заголовков
         $headers = [];
 
-        // Если авторизация по постоянному токену, то добавляем заголовок Authorization:
+        // Если авторизация по долгосрочному токену, то добавляем заголовок Authorization:
         if (isset(self::$lastAuth[$subdomain]['is_permanent_token']) 
             && self::$lastAuth[$subdomain]['is_permanent_token'] === true
             && !empty(self::$lastAuth[$subdomain]['permanent_token'])) {

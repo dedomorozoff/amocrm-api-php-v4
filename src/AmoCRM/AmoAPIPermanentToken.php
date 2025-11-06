@@ -1,6 +1,6 @@
 <?php
 /**
- * Трейт AmoAPIPermanentToken. Содержит методы для авторизации по постоянному токену amoCRM
+ * Трейт AmoAPIPermanentToken. Содержит методы для авторизации по долгосрочному токену amoCRM
  *
  * @author    dedomorozoff
  * @copyright 2024 dedomorozoff
@@ -9,7 +9,7 @@
  *
  * @version 1.0.0
  *
- * v1.0.0 (2024) Начальный релиз. Поддержка постоянных токенов amoCRM для API v4
+ * v1.0.0 (2024) Начальный релиз. Поддержка долгосрочных токенов amoCRM для API v4
  *
  */
 
@@ -20,18 +20,18 @@ namespace AmoCRM;
 trait AmoAPIPermanentToken
 {
     /**
-     * Выполняет авторизацию по постоянному токену amoCRM
-     * Постоянные токены создаются в настройках аккаунта amoCRM и не требуют OAuth flow
+     * Выполняет авторизацию по долгосрочному токену amoCRM
+     * Долгосрочные токены создаются в настройках аккаунта amoCRM и не требуют OAuth flow
      * 
      * @param string $subdomain Поддомен amoCRM
-     * @param string $token Постоянный токен amoCRM
+     * @param string $token Долгосрочный токен amoCRM
      * @return void
      * @throws AmoAPIException
      */
     public static function permanentToken(string $subdomain, string $token): void
     {
         if (empty($token)) {
-            throw new AmoAPIException("Постоянный токен не может быть пустым");
+            throw new AmoAPIException("Долгосрочный токен не может быть пустым");
         }
 
         // Сохраняем поддомен, использованный при последней авторизации
@@ -46,7 +46,7 @@ trait AmoAPIPermanentToken
     }
 
     /**
-     * Проверяет, используется ли постоянный токен для указанного поддомена
+     * Проверяет, используется ли долгосрочный токен для указанного поддомена
      * @param string $subdomain Поддомен amoCRM
      * @return bool
      */
