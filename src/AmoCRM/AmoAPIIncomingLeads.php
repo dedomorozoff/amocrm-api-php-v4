@@ -2,8 +2,8 @@
 /**
  * Трейт AmoAPIIncomingLead. Содержит методы для принятия или отклонения неразобранных сделок (заявок)
  *
- * @author    andrey-tech
- * @copyright 2020 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2020 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *
@@ -21,6 +21,7 @@ trait AmoAPIIncomingLeads
 {
     /**
      * Принимает неразобранные сделки (заявки)
+     * Обновлено для работы с API v4: обновлен эндпоинт и парсинг ответов
      * @param array $params Параметры заявок
      * @param bool $returnResponse Вернуть ответ сервера amoCRM
      * @param null $subdomain Поддомен amoCRM
@@ -45,6 +46,7 @@ trait AmoAPIIncomingLeads
 
     /**
      * Отклоняет неразобранные сделки (заявки)
+     * Обновлено для работы с API v4: обновлен эндпоинт и парсинг ответов
      * @param array $params Параметры заявок
      * @param bool $returnResponse Вернуть ответ сервера amoCRM
      * @param null $subdomain Поддомен amoCRM

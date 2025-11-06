@@ -2,8 +2,8 @@
 /**
  * Трейт AmoAPIGetAllEntities. Содержит методы для получения списка всех сущностей заданного типа
  *
- * @author    andrey-tech
- * @copyright 2019-2020 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2019-2020 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *

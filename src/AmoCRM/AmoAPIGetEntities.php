@@ -2,8 +2,8 @@
 /**
  * Трейт AmoAPIGetEntities. Содержит методы для получения списка сущностей.
  *
- * @author    andrey-tech
- * @copyright 2020 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2020 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *
@@ -117,6 +117,7 @@ trait AmoAPIGetEntities
 
     /**
      * Загружает WebHooks
+     * Обновлено для работы с API v4: обновлен эндпоинт
      * @return array | null
      */
     public static function getWebhooks(array $params = [], bool $returnResponse = false, $subdomain = null)
@@ -218,6 +219,7 @@ trait AmoAPIGetEntities
 
     /**
      * Загружает неразобранные сделки
+     * Обновлено для работы с API v4: обновлен эндпоинт с /api/v2/incoming_leads на /api/v4/leads/unsorted
      * @return array | null
      */
     public static function getIncomingLeads(array $params = [], bool $returnResponse = false, $subdomain = null)
@@ -267,6 +269,7 @@ trait AmoAPIGetEntities
 
     /**
      * Загружает перечень каталогов аккаунта
+     * Обновлено для работы с API v4: обновлен эндпоинт
      * @return array | null
      */
     public static function getCatalogs(array $params = [], bool $returnResponse = false, $subdomain = null)

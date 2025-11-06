@@ -2,8 +2,8 @@
 /**
  * Трейт AmoAPIRequest. Отправляет GET/POST запросы к API amoCRM.
  *
- * @author    andrey-tech
- * @copyright 2019-2022 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2019-2022 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *
@@ -302,8 +302,9 @@ trait AmoAPIRequest
 
     /**
      * Отправляет запрос к amoCRM API
+     * Обновлено для работы с API v4: добавлена поддержка методов PATCH и DELETE
      * @param string $query Путь в строке запроса
-     * @param string $type Тип запроса GET|POST|AJAX
+     * @param string $type Тип запроса GET|POST|PATCH|DELETE|AJAX
      * @param array $params Параметры запроса
      * @param string|null $subdomain Поддомен amoCRM
      * @return array|null
@@ -382,6 +383,8 @@ trait AmoAPIRequest
                 break;
 
                 case 'DELETE':
+                    // Метод DELETE добавлен для поддержки API v4
+                    // В v4 для удаления сущностей используется DELETE метод с массивом ID в теле запроса
                     // Кодируем тело запроса
                     $jsonParams = json_encode($params);
                     if ($jsonParams === false) {
@@ -404,6 +407,8 @@ trait AmoAPIRequest
                     break;
 
                 case 'PATCH':
+                    // Метод PATCH добавлен для поддержки API v4
+                    // В v4 для обновления сущностей используется PATCH метод вместо POST с оберткой update
                     // Кодируем тело запроса
                     $jsonParams = json_encode($params);
                     if ($jsonParams === false) {
@@ -441,7 +446,8 @@ trait AmoAPIRequest
 
                 break;
 
-            // Допустимые методы запроса только GET, POST и AJAX
+            // Допустимые методы запроса: GET, POST, PATCH, DELETE и AJAX
+            // PATCH и DELETE добавлены для поддержки API v4
             default:
                 throw new AmoAPIException("Недопустимый метод запроса {$type}");
         }

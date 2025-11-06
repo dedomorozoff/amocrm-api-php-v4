@@ -2,8 +2,8 @@
 /**
  * Класс AmoCatalogElement. Содерит методы для работы с элементами списка (каталога).
  *
- * @author    andrey-tech
- * @copyright 2020 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2020 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *
@@ -49,6 +49,7 @@ class AmoCatalogElement extends AmoObject
 
     /**
      * Приводит модель к формату для передачи в API
+     * ВНИМАНИЕ: Для элементов каталогов в v4 используется custom_fields (не custom_fields_values)
      * @return array
      */
     public function getParams() :array
@@ -62,6 +63,7 @@ class AmoCatalogElement extends AmoObject
             }
         }
 
+        // Для элементов каталогов используется custom_fields (специфика v4 API)
         if (count($this->custom_fields)) {
             $params['custom_fields'] = $this->custom_fields;
         }

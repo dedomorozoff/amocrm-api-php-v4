@@ -2,12 +2,12 @@
 /**
  * Класс AmoAPI. amoCRM REST API wrapper
  *
- * @author    andrey-tech
- * @copyright 2019-2020 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2019-2020 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *
- * @version 2.4.0
+ * @version 3.0.0
  *
  * v1.0.0 (24.04.2019) Начальный релиз
  * v1.1.0 (02.06.2019) Добавлены новые параметры, рефракторинг.
@@ -20,6 +20,7 @@
  * v2.3.0 (22.05.2020) Добавлен метод deleteObjects() для удаления списков и их элементов
  * v2.3.1 (14.07.2020) Изменен порядок параметров $subdomain и $returnResponse в методах
  * v2.4.0 (09.08.2020) Добавлен метод saveObjectsWithLimit()
+ * v3.0.0 (2024) Миграция на API v4: обновлены структуры запросов и ответов, добавлена поддержка PATCH и DELETE методов
  *
  */
 

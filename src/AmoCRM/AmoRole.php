@@ -2,8 +2,8 @@
 /**
  * Класс AmoUser. Содержит методы для работы с пользователями.
  *
- * @author    andrey-tech
- * @copyright 2020-2021 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2020-2021 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *

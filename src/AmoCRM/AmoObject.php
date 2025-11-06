@@ -2,8 +2,8 @@
 /**
  * Класс AmoObject. Абстрактный базовый класс для работы с сущностями amoCRM.
  *
- * @author    andrey-tech
- * @copyright 2020 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2020 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *
@@ -394,6 +394,8 @@ abstract class AmoObject
 
     /**
      * Обновляет или добавляет объект в amoCRM
+     * Обновлено для работы с API v4: используется POST для создания и PATCH для обновления
+     * Данные передаются напрямую как массив объектов без обертки add/update
      * @param bool $returnResponse Вернуть ответ сервера вместо ID сущности
      * @return mixed
      *
