@@ -316,13 +316,13 @@ trait AmoAPIRequest
         if (! isset($subdomain)) {
             $subdomain = self::$lastSubdomain;
             if (! isset($subdomain)) {
-                throw new AmoAPIException("Необходима авторизация auth() или oAuth2()");
+                throw new AmoAPIException("Необходима авторизация auth(), oAuth2() или permanentToken()");
             }
         }
 
         // Проверка наличия авторизации в поддомене
         if (! isset(self::$lastAuth[ $subdomain ])) {
-            throw new AmoAPIException("Не выполнена авторизация auth() или oAuth2() для поддомена {$subdomain}");
+            throw new AmoAPIException("Не выполнена авторизация auth(), oAuth2() или permanentToken() для поддомена {$subdomain}");
         }
 
         // Сохраняем параметры последнего запроса
@@ -474,9 +474,22 @@ trait AmoAPIRequest
 
         // Если код статуса HTTP 401 (401 Unauthorized), то выполняем, при необходимости, повторную авторизацию
         if ($code === 401) {
-            if (self::$lastAuth[ $subdomain ]['is_oauth2']) { // Если авторизация по протоколу OAuth 2.0
+            // Если авторизация по постоянному токену, то повторная авторизация не требуется
+            // Постоянные токены не обновляются, если токен недействителен - это ошибка конфигурации
+            if (isset(self::$lastAuth[$subdomain]['is_permanent_token']) 
+                && self::$lastAuth[$subdomain]['is_permanent_token'] === true) {
+                throw new AmoAPIException(
+                    "Постоянный токен недействителен или был отозван для поддомена {$subdomain}. " .
+                    "Проверьте токен в настройках аккаунта amoCRM. {$requestInfo} (Response: {$result})",
+                    401
+                );
+            }
+            
+            if (isset(self::$lastAuth[$subdomain]['is_oauth2']) && self::$lastAuth[$subdomain]['is_oauth2']) {
+                // Если авторизация по протоколу OAuth 2.0
                 $response = self::reOAuth2();
-            } else { // Если авторизация по API ключу пользователя
+            } else {
+                // Если авторизация по API ключу пользователя
                 $response = self::reAuth();
             }
             if ($response !== true) {
@@ -587,8 +600,14 @@ trait AmoAPIRequest
         // Список НТТP-заголовков
         $headers = [];
 
+        // Если авторизация по постоянному токену, то добавляем заголовок Authorization:
+        if (isset(self::$lastAuth[$subdomain]['is_permanent_token']) 
+            && self::$lastAuth[$subdomain]['is_permanent_token'] === true
+            && !empty(self::$lastAuth[$subdomain]['permanent_token'])) {
+            $headers[] = 'Authorization: Bearer ' . self::$lastAuth[$subdomain]['permanent_token'];
+        }
         // Если авторизация по протоколу OAuth 2.0, то добавляем заголовок Authorization:
-        if (self::$lastAuth[ $subdomain ]['is_oauth2']) {
+        elseif (isset(self::$lastAuth[$subdomain]['is_oauth2']) && self::$lastAuth[$subdomain]['is_oauth2']) {
             // Если установлен access token
             if (! empty(self::$lastAuth[ $subdomain ]['access_token'])) {
                 $headers[] = 'Authorization: Bearer ' . self::$lastAuth[ $subdomain ]['access_token'];

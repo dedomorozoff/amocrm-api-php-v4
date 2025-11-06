@@ -48,6 +48,9 @@ class AmoAPI
     // Трейт методов для авторизации по протоколу OAuth 2.0
     use AmoAPIOAuth2;
 
+    // Трейт методов для авторизации по постоянному токену
+    use AmoAPIPermanentToken;
+
     // Трейт методов для добавления и удаления webhooks
     use AmoAPIWebhooks;
 
