@@ -1,12 +1,43 @@
-# amoCRM API PHP Wrapper (переделан для версии 4 API)
-  
+# amoCRM API PHP Wrapper v4
+
+![amoCRM logo](./assets/amocrm-logo.png)  
+
+[![Latest Stable Version](https://poser.pugx.org/dedomorozoff/amocrm-api-php-v4/v)](//packagist.org/packages/dedomorozoff/amocrm-api-php-v4)
+[![Total Downloads](https://poser.pugx.org/dedomorozoff/amocrm-api-php-v4/downloads)](//packagist.org/packages/dedomorozoff/amocrm-api-php-v4)
+[![GitHub stars](https://img.shields.io/github/stars/dedomorozoff/amocrm-api-php-v4)](https://github.com/dedomorozoff/amocrm-api-php-v4/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/dedomorozoff/amocrm-api-php-v4)](https://github.com/dedomorozoff/amocrm-api-php-v4/network)
+[![GitHub watchers](https://img.shields.io/github/watchers/dedomorozoff/amocrm-api-php-v4)](https://github.com/dedomorozoff/amocrm-api-php-v4/watchers)
+[![License](https://poser.pugx.org/dedomorozoff/amocrm-api-php-v4/license)](//packagist.org/packages/dedomorozoff/amocrm-api-php-v4)
+
 ### ✅ Полностью переделанная версия библиотеки под 4 версию API. 
+
+Простая обертка на PHP 8.0+ для работы с REST API [amoCRM](https://www.amocrm.ru) **v4 (версии 4)** с авторизацией по протоколу oAuth 2.0
+или по API-ключу пользователя, поддержкой AJAX-запросов к frontend-методам, троттлингом запросов к API,
+блокировкой одновременного обновления одной сущности и логированием запросов/ответов к API в файл.
+
+**Основные изменения для API v4:**
 - Все основные эндпоинты переведены на API v4
 - Добавлен метод PATCH для редактирования уже существующей сущности
+- Добавлен метод DELETE для удаления сущностей
 - Добавлен класс DatabaseStorage для хранения токенов в базе данных
 - Улучшена обработка ответов API v4 в методе getItems()
+- Обновлена структура запросов: данные передаются напрямую без обертки add/update
+- Обновлена работа с custom_fields_values для основных сущностей
 
-  Для хранения токенов в базе данных требуется запустить файл migration.php или самостоятельно создать таблицу с названием tokens и с полями token_domain(VARCHAR), token_json(JSON), token_integration_code(VARCHAR). token_integration_code - уникальный идентификационный код интеграции, создан для того чтобы было возможно определять интеграции созданные на одном и то же домене.
+Данная библиотека была создана для удовлетворения
+[новых требований amoCRM](https://www.amocrm.ru/developers/content/integrations/requirements),
+предъявляемых к публичным интеграциям:
+> Публичные интеграции должны использовать механизм авторизации oAuth 2.0,
+использование механизма API ключей не допускается. Требование с февраля 2020 года.
+
+С 1 июля 2020 г. информация о API-ключе пользователя стала недоступна в интерфейсе amoCRM.
+
+В настоящее время актуальной версией является [REST API amoCRM **v4 (версия 4)**](https://www.amocrm.ru/developers/content/crm_platform/api-reference) (запросы к API отправляются на /api/v4/).
+
+### Хранение токенов в базе данных
+
+Для хранения токенов в базе данных требуется запустить файл migration.php или самостоятельно создать таблицу с названием tokens и с полями token_domain(VARCHAR), token_json(JSON), token_integration_code(VARCHAR). token_integration_code - уникальный идентификационный код интеграции, создан для того чтобы было возможно определять интеграции созданные на одном и то же домене.
+
 Сохранение и загрузка токенов в базу данных:
 
 ```php
@@ -19,33 +50,7 @@ AmoAPI::$tokenStorage = new DatabaseStorage(
   'password' => 'пароль'
 ],
 $integrationCode);
-
-```
-
-  
-
-![amoCRM logo](./assets/amocrm-logo.png)  
-
-[![Latest Stable Version](https://poser.pugx.org/andrey-tech/amocrm-api-php/v)](//packagist.org/packages/andrey-tech/amocrm-api-php)
-[![Total Downloads](https://poser.pugx.org/andrey-tech/amocrm-api-php/downloads)](//packagist.org/packages/andrey-tech/amocrm-api-php)
-[![GitHub stars](https://img.shields.io/github/stars/andrey-tech/amocrm-api-php)](https://github.com/andrey-tech/amocrm-api-php/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/andrey-tech/amocrm-api-php)](https://github.com/andrey-tech/amocrm-api-php/network)
-[![GitHub watchers](https://img.shields.io/github/watchers/andrey-tech/amocrm-api-php)](https://github.com/andrey-tech/amocrm-api-php/watchers)
-[![License](https://poser.pugx.org/andrey-tech/amocrm-api-php/license)](//packagist.org/packages/andrey-tech/amocrm-api-php)
-
-Простая обертка на PHP7+ для работы с REST API [amoCRM](https://www.amocrm.ru) **v2 (версии 2)** с авторизацией по протоколу oAuth 2.0
-или по API-ключу пользователя, поддержкой AJAX-запросов к frontend-методам, троттлингом запросов к API,
-блокировкой одновременного обновления одной сущности и логированием запросов/ответов к API в файл.
-
-Данная библиотека была создана для удовлетворения
-[новых требований amoCRM](https://www.amocrm.ru/developers/content/integrations/requirements),
-предъявляемых к публичным интеграциям:
-> Публичные интеграции должны использовать механизм авторизации oAuth 2.0,
-использование механизма API ключей не допускается. Требование с февраля 2020 года.
-
-С 1 июля 2020 г. информация о API-ключе пользователя стала недоступна в интерфейсе amoCRM.
-
-В настоящее время актуальной версией является [REST API amoCRM **v4 (версия 4)**](https://www.amocrm.ru/developers/content/crm_platform/api-reference) (запросы к API отправляются на /api/v4/).  
+```  
 
 ## Документация по REST API amoCRM **v2**
 
@@ -140,7 +145,7 @@ $integrationCode);
 <a id="%D0%A2%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F"></a>
 ## Требования
 
-- PHP >= 7.0.
+- PHP >= 8.0.
 - Произвольный автозагрузчик классов, реализующий стандарт [PSR-4](https://www.php-fig.org/psr/psr-4/).
 
 <a id="%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0"></a>
@@ -148,13 +153,13 @@ $integrationCode);
 
 Установка через composer:
 ```
-$ composer require andrey-tech/amocrm-api-php:"^2.7"
+$ composer require dedomorozoff/amocrm-api-php-v4:"^3.0"
 ```
 
 или путем добавления:
 
 ```
-"andrey-tech/amocrm-api-php": "^2.7"
+"dedomorozoff/amocrm-api-php-v4": "^3.0"
 ```
 
 в секцию require файла composer.json.
@@ -1801,7 +1806,7 @@ try {
 <a id="%D0%90%D0%B2%D1%82%D0%BE%D1%80"></a>
 ## Автор
 
-© 2019-2021 andrey-tech
+© 2019-2021 andrey-tech, 2024 dedomorozoff
 
 <a id="%D0%9B%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F"></a>
 ## Лицензия
