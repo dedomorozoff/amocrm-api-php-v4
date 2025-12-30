@@ -146,13 +146,13 @@ $integrationCode);
 
 Установка через composer:
 ```
-$ composer require dedomorozoff/amocrm-api-php-v4:"^3.0"
+$ composer require dedomorozoff/amocrm-api-php-v4"
 ```
 
 или путем добавления:
 
 ```
-"dedomorozoff/amocrm-api-php-v4": "^3.0"
+"dedomorozoff/amocrm-api-php-v4": "^0.4.0"
 ```
 
 в секцию require файла composer.json.
