@@ -2,8 +2,8 @@
 /**
  * Класс AmoIncomingLeadSip. Содержит методы для работы с неразобранными сделками (заявками) с типом входящий звонок (sip)
  *
- * @author    andrey-tech
- * @copyright 2020 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2020 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *
@@ -23,5 +23,5 @@ class AmoIncomingLeadSip extends AmoIncomingLead
      * Путь для запроса к API
      * @var string
      */
-    const URL = '/api/v2/incoming_leads/sip';
+    const URL = '/api/v4/leads/unsorted';
 }

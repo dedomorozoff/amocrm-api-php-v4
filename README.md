@@ -1,10 +1,38 @@
-# amoCRM API PHP Wrapper (частично переделан для 4 версии api)
-  
-### ❗❗❗ Частично измененная версия библиотеки под 4 версию API. 
-- Изменены часть классов получения объектов сущностей, добавлен метод PATCH для редактирования уже существующей сущности.
-- Добавлен класс DatabaseStorage для хранения токенов в базе данных.
+# amoCRM API PHP Wrapper v4
 
-  Для хранения токенов в базе данных требуется запустить файл migration.php или самостоятельно создать таблицу с названием tokens и с полями token_domain(VARCHAR), token_json(JSON), token_integration_code(VARCHAR). token_integration_code - уникальный идентификационный код интеграции, создан для того чтобы было возможно определять интеграции созданные на одном и то же домене.
+![amoCRM logo](./assets/amocrm-logo.png)  
+
+[![Latest Stable Version](https://poser.pugx.org/dedomorozoff/amocrm-api-php-v4/v)](//packagist.org/packages/dedomorozoff/amocrm-api-php-v4)
+[![Total Downloads](https://poser.pugx.org/dedomorozoff/amocrm-api-php-v4/downloads)](//packagist.org/packages/dedomorozoff/amocrm-api-php-v4)
+[![GitHub stars](https://img.shields.io/github/stars/dedomorozoff/amocrm-api-php-v4)](https://github.com/dedomorozoff/amocrm-api-php-v4/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/dedomorozoff/amocrm-api-php-v4)](https://github.com/dedomorozoff/amocrm-api-php-v4/network)
+[![GitHub watchers](https://img.shields.io/github/watchers/dedomorozoff/amocrm-api-php-v4)](https://github.com/dedomorozoff/amocrm-api-php-v4/watchers)
+[![License](https://poser.pugx.org/dedomorozoff/amocrm-api-php-v4/license)](//packagist.org/packages/dedomorozoff/amocrm-api-php-v4)
+
+Простая обертка на PHP 8.0+ для работы с REST API [amoCRM](https://www.amocrm.ru) **v4 (версии 4)** с авторизацией по протоколу oAuth 2.0,
+долгосрочным токенам amoCRM (рекомендуется для серверных интеграций) или по API-ключу пользователя, поддержкой AJAX-запросов к frontend-методам, троттлингом запросов к API,
+блокировкой одновременного обновления одной сущности и логированием запросов/ответов к API в файл.
+
+**Основные изменения для API v4:**
+- Все основные эндпоинты переведены на API v4
+- Добавлен метод PATCH для редактирования уже существующей сущности
+- Добавлен метод DELETE для удаления сущностей
+- Добавлен класс DatabaseStorage для хранения токенов в базе данных
+- Добавлена поддержка долгосрочных токенов amoCRM (рекомендуется для серверных интеграций)
+- Улучшена обработка ответов API v4 в методе getItems()
+- Обновлена структура запросов: данные передаются напрямую без обертки add/update
+- Обновлена работа с custom_fields_values для основных сущностей
+
+Данная библиотека была создана для удовлетворения
+[новых требований amoCRM](https://www.amocrm.ru/developers/content/integrations/requirements),
+предъявляемых к публичным интеграциям:
+
+В настоящее время актуальной версией является [REST API amoCRM **v4 (версия 4)**](https://www.amocrm.ru/developers/content/crm_platform/api-reference) (запросы к API отправляются на /api/v4/).
+
+### Хранение токенов в базе данных
+
+Для хранения токенов в базе данных требуется запустить файл migration.php или самостоятельно создать таблицу с названием tokens и с полями token_domain(VARCHAR), token_json(JSON), token_integration_code(VARCHAR). token_integration_code - уникальный идентификационный код интеграции, создан для того чтобы было возможно определять интеграции созданные на одном и то же домене.
+
 Сохранение и загрузка токенов в базу данных:
 
 ```php
@@ -17,62 +45,33 @@ AmoAPI::$tokenStorage = new DatabaseStorage(
   'password' => 'пароль'
 ],
 $integrationCode);
+```  
 
-```
+## Документация по REST API amoCRM **v4**
 
-  
+Актуальная документация по REST API amoCRM **v4** доступна на официальном сайте:
 
-![amoCRM logo](./assets/amocrm-logo.png)  
+- [Общая информация об API v4](https://www.amocrm.ru/developers/content/crm_platform/api-reference)
+- [Авторизация (OAuth 2.0)](https://www.amocrm.ru/developers/content/oauth/oauth)
+- [Долгосрочные токены](https://www.amocrm.ru/developers/content/oauth/step-by-step#%D0%94%D0%BE%D0%BB%D0%B3%D0%BE%D1%81%D1%80%D0%BE%D1%87%D0%BD%D1%8B%D0%B5-%D1%82%D0%BE%D0%BA%D0%B5%D0%BD%D1%8B)
 
-[![Latest Stable Version](https://poser.pugx.org/andrey-tech/amocrm-api-php/v)](//packagist.org/packages/andrey-tech/amocrm-api-php)
-[![Total Downloads](https://poser.pugx.org/andrey-tech/amocrm-api-php/downloads)](//packagist.org/packages/andrey-tech/amocrm-api-php)
-[![GitHub stars](https://img.shields.io/github/stars/andrey-tech/amocrm-api-php)](https://github.com/andrey-tech/amocrm-api-php/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/andrey-tech/amocrm-api-php)](https://github.com/andrey-tech/amocrm-api-php/network)
-[![GitHub watchers](https://img.shields.io/github/watchers/andrey-tech/amocrm-api-php)](https://github.com/andrey-tech/amocrm-api-php/watchers)
-[![License](https://poser.pugx.org/andrey-tech/amocrm-api-php/license)](//packagist.org/packages/andrey-tech/amocrm-api-php)
+**Основные разделы документации:**
 
-Простая обертка на PHP7+ для работы с REST API [amoCRM](https://www.amocrm.ru) **v2 (версии 2)** с авторизацией по протоколу oAuth 2.0
-или по API-ключу пользователя, поддержкой AJAX-запросов к frontend-методам, троттлингом запросов к API,
-блокировкой одновременного обновления одной сущности и логированием запросов/ответов к API в файл.
-
-Данная библиотека была создана для удовлетворения
-[новых требований amoCRM](https://www.amocrm.ru/developers/content/integrations/requirements),
-предъявляемых к публичным интеграциям:
-> Публичные интеграции должны использовать механизм авторизации oAuth 2.0,
-использование механизма API ключей не допускается. Требование с февраля 2020 года.
-
-С 1 июля 2020 г. информация о API-ключе пользователя стала недоступна в интерфейсе amoCRM.
-
-В настоящее время актуальной версией является [REST API amoCRM **v4 (версия 4)**](https://www.amocrm.ru/developers/content/crm_platform/api-reference) (запросы к API отправляются на /api/v4/).  
-
-## Документация по REST API amoCRM **v2**
-
-Документация по REST API **v2** теперь недоступна на русскоязычной версии сайта amoCRM.
-На англоязычной версии сайта эта документация перенесена в раздел [API V2 GENERAL METHODS](https://www.amocrm.com/developers/).
-
-Архив документации по REST API amoCRM **v2** в формате HTML вынесен в самостоятельный [репозиторий](https://github.com/andrey-tech/amocrm-api-v2-docs).   
-Ниже приведены ссылки на отдельные HTML-файлы этого архива:
-
-- [Аккаунт](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/account.html) 
-- [Авторизация](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/auth.html)
-- [Компании](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/companies.html)
-- [Контакты](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/contacts.html)
-- [Сделки](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/leads.html)
-- [События](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/notes.html)
-- [Задачи](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/tasks.html)
-- [Списки](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/catalogs.html)
-- [Элементы списков](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/catalog-elements.html)
-- [Неразобранное](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/unsorted.html)
-- [Webhooks](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/webhooks.html)
-- [Покупатели](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/customers.html)
-- [Дополнительные поля](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/custom_fields.html)
-- [Виджеты](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/widgets.html)
-- [Товары](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/products.html)
-- [Воронки и этапы продаж](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/pipelines.html)
-- [Логирование звонков](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/calls-add.html)
-- [Уведомление о звонке](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/call-event.html)
-- [Коды ошибок](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/errors.html)
-- [Ограничения и рекомендации](https://htmlpreview.github.io/?https://github.com/andrey-tech/amocrm-api-v2-docs/blob/master/docs/recommendations.html)
+- [Аккаунт](https://www.amocrm.ru/developers/content/crm_platform/api-reference/account)
+- [Контакты](https://www.amocrm.ru/developers/content/crm_platform/api-reference/contacts)
+- [Компании](https://www.amocrm.ru/developers/content/crm_platform/api-reference/companies)
+- [Сделки](https://www.amocrm.ru/developers/content/crm_platform/api-reference/leads)
+- [Задачи](https://www.amocrm.ru/developers/content/crm_platform/api-reference/tasks)
+- [События (Примечания)](https://www.amocrm.ru/developers/content/crm_platform/api-reference/events)
+- [Каталоги](https://www.amocrm.ru/developers/content/crm_platform/api-reference/catalogs)
+- [Элементы каталогов](https://www.amocrm.ru/developers/content/crm_platform/api-reference/catalogs/elements)
+- [Неразобранное](https://www.amocrm.ru/developers/content/crm_platform/api-reference/leads/unsorted)
+- [Webhooks](https://www.amocrm.ru/developers/content/crm_platform/api-reference/webhooks)
+- [Покупатели](https://www.amocrm.ru/developers/content/crm_platform/api-reference/customers)
+- [Дополнительные поля](https://www.amocrm.ru/developers/content/crm_platform/api-reference/custom-fields)
+- [Воронки и этапы продаж](https://www.amocrm.ru/developers/content/crm_platform/api-reference/pipelines)
+- [Пользователи и роли](https://www.amocrm.ru/developers/content/crm_platform/api-reference/users)
+- [Ограничения и рекомендации](https://www.amocrm.ru/developers/content/crm_platform/api-reference/limits)
 
 ## Содержание
 
@@ -89,6 +88,7 @@ $integrationCode);
             - [Класс `FileStorage`](#%D0%9A%D0%BB%D0%B0%D1%81%D1%81-filestorage)
             - [Использование собственного класса для сохранения токенов](#%D0%98%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%B1%D1%81%D1%82%D0%B2%D0%B5%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BA%D0%BB%D0%B0%D1%81%D1%81%D0%B0-%D0%B4%D0%BB%D1%8F-%D1%81%D0%BE%D1%85%D1%80%D0%B0%D0%BD%D0%B5%D0%BD%D0%B8%D1%8F-%D1%82%D0%BE%D0%BA%D0%B5%D0%BD%D0%BE%D0%B2)
         - [Проверка наличия первичной авторизации](#%D0%9F%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B0-%D0%BD%D0%B0%D0%BB%D0%B8%D1%87%D0%B8%D1%8F-%D0%BF%D0%B5%D1%80%D0%B2%D0%B8%D1%87%D0%BD%D0%BE%D0%B9-%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8)
+    - [Авторизация по долгосрочному токену \(рекомендуемый метод для серверных интеграций\)](#%D0%90%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F-%D0%BF%D0%BE-%D0%B4%D0%BE%D0%BB%D0%B3%D0%BE%D1%81%D1%80%D0%BE%D1%87%D0%BD%D0%BE%D0%BC%D1%83-%D1%82%D0%BE%D0%BA%D0%B5%D0%BD%D1%83-%D1%80%D0%B5%D0%BA%D0%BE%D0%BC%D0%B5%D0%BD%D0%B4%D1%83%D0%B5%D0%BC%D1%8B%D0%B9-%D0%BC%D0%B5%D1%82%D0%BE%D0%B4-%D0%B4%D0%BB%D1%8F-%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D1%85-%D0%B8%D0%BD%D1%82%D0%B5%D0%B3%D1%80%D0%B0%D1%86%D0%B8%D0%B9)
     - [Авторизация по API-ключу пользователя \(устаревший метод\)](#%D0%90%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F-%D0%BF%D0%BE-api-%D0%BA%D0%BB%D1%8E%D1%87%D1%83-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F-%D1%83%D1%81%D1%82%D0%B0%D1%80%D0%B5%D0%B2%D1%88%D0%B8%D0%B9-%D0%BC%D0%B5%D1%82%D0%BE%D0%B4)
     - [Одновременная авторизация в нескольких аккаунтах amoCRM](#%D0%9E%D0%B4%D0%BD%D0%BE%D0%B2%D1%80%D0%B5%D0%BC%D0%B5%D0%BD%D0%BD%D0%B0%D1%8F-%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F-%D0%B2-%D0%BD%D0%B5%D1%81%D0%BA%D0%BE%D0%BB%D1%8C%D0%BA%D0%B8%D1%85-%D0%B0%D0%BA%D0%BA%D0%B0%D1%83%D0%BD%D1%82%D0%B0%D1%85-amocrm)
 - [Параметры настройки](#%D0%9F%D0%B0%D1%80%D0%B0%D0%BC%D0%B5%D1%82%D1%80%D1%8B-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8)
@@ -138,7 +138,7 @@ $integrationCode);
 <a id="%D0%A2%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F"></a>
 ## Требования
 
-- PHP >= 7.0.
+- PHP >= 8.0.
 - Произвольный автозагрузчик классов, реализующий стандарт [PSR-4](https://www.php-fig.org/psr/psr-4/).
 
 <a id="%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0"></a>
@@ -146,13 +146,13 @@ $integrationCode);
 
 Установка через composer:
 ```
-$ composer require andrey-tech/amocrm-api-php:"^2.7"
+$ composer require dedomorozoff/amocrm-api-php-v4:"^3.0"
 ```
 
 или путем добавления:
 
 ```
-"andrey-tech/amocrm-api-php": "^2.7"
+"dedomorozoff/amocrm-api-php-v4": "^3.0"
 ```
 
 в секцию require файла composer.json.
@@ -374,6 +374,57 @@ try {
     printf('Ошибка обработки токенов (%d): %s' . PHP_EOL, $e->getCode(), $e->getMessage());
 }
 ```
+
+<a id="%D0%90%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F-%D0%BF%D0%BE-%D0%B4%D0%BE%D0%BB%D0%B3%D0%BE%D1%81%D1%80%D0%BE%D1%87%D0%BD%D0%BE%D0%BC%D1%83-%D1%82%D0%BE%D0%BA%D0%B5%D0%BD%D1%83-%D1%80%D0%B5%D0%BA%D0%BE%D0%BC%D0%B5%D0%BD%D0%B4%D1%83%D0%B5%D0%BC%D1%8B%D0%B9-%D0%BC%D0%B5%D1%82%D0%BE%D0%B4-%D0%B4%D0%BB%D1%8F-%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D1%85-%D0%B8%D0%BD%D1%82%D0%B5%D0%B3%D1%80%D0%B0%D1%86%D0%B8%D0%B9"></a>
+### Авторизация по долгосрочному токену (рекомендуемый метод для серверных интеграций)
+
+Долгосрочные токены amoCRM - это простой и безопасный способ авторизации для серверных интеграций без необходимости использования OAuth 2.0 flow. Долгосрочные токены создаются в настройках аккаунта amoCRM и не требуют обновления.
+
+**Преимущества долгосрочных токенов:**
+- Не требуют OAuth flow
+- Не требуют обновления (refresh tokens)
+- Простая настройка в интерфейсе amoCRM
+- Идеально подходят для серверных интеграций и автоматизации
+
+- `static AmoAPI::permanentToken(string $subdomain, string $token) :void`  
+    - `$subdomain` - поддомен или полный домен amoCRM;
+    - `$token` - долгосрочный токен amoCRM (создается в настройках аккаунта).
+
+**Как создать долгосрочный токен:**
+1. Войдите в ваш аккаунт amoCRM
+2. Перейдите в раздел "Настройки" → "Интеграции" → "Долгосрочные токены"
+3. Создайте новый токен с необходимыми правами доступа
+4. Скопируйте созданный токен
+
+Пример авторизации по долгосрочному токену:
+
+```php
+use AmoCRM\{AmoAPI, AmoAPIException};
+
+try {
+    // Параметры авторизации по долгосрочному токену
+    $subdomain = 'testsubdomain';
+    $token = 'your-permanent-token-here';
+
+    // Авторизация
+    AmoAPI::permanentToken($subdomain, $token);
+
+    // Получение информации об аккаунте
+    print_r(AmoAPI::getAccount());
+
+    // Работа с сущностями
+    $contacts = AmoAPI::getContacts();
+    print_r($contacts);
+
+} catch (AmoAPIException $e) {
+    printf('Ошибка авторизации (%d): %s' . PHP_EOL, $e->getCode(), $e->getMessage());
+}
+```
+
+**Важно:**
+- Долгосрочные токены не обновляются автоматически. Если токен был отозван или истек, при запросе к API будет возвращена ошибка 401.
+- Храните долгосрочные токены в безопасном месте (например, в переменных окружения или зашифрованной конфигурации).
+- Не передавайте долгосрочные токены в публичные репозитории или клиентский код.
 
 <a id="%D0%90%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F-%D0%BF%D0%BE-api-%D0%BA%D0%BB%D1%8E%D1%87%D1%83-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F-%D1%83%D1%81%D1%82%D0%B0%D1%80%D0%B5%D0%B2%D1%88%D0%B8%D0%B9-%D0%BC%D0%B5%D1%82%D0%BE%D0%B4"></a>
 ### Авторизация по API-ключу пользователя ([устаревший метод](https://www.amocrm.ru/developers/content/oauth/old))
@@ -1799,7 +1850,7 @@ try {
 <a id="%D0%90%D0%B2%D1%82%D0%BE%D1%80"></a>
 ## Автор
 
-© 2019-2021 andrey-tech
+© 2019-2021 andrey-tech, 2024-2025 dedomorozoff
 
 <a id="%D0%9B%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F"></a>
 ## Лицензия

@@ -2,8 +2,8 @@
 /**
  * Трейт AmoAPIRequest. Отправляет GET/POST запросы к API amoCRM.
  *
- * @author    andrey-tech
- * @copyright 2019-2022 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2019-2022 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *
@@ -109,6 +109,13 @@ trait AmoAPIRequest
     public static $amoTimeout = 30; // Секунды
 
     /**
+     * Каталог для хранения файлов cookie относительно каталога файла класса AmoAPI (на конце /)
+     * Определено также в AmoAPIAuth для совместимости
+     * @var string
+     */
+    public static $cookieFileDir = 'cookies/';
+
+    /**
      * Количество секунд, которое добавляется к параметру updated_at при обновлении сущности
      * @var int
      */
@@ -149,7 +156,7 @@ trait AmoAPIRequest
         102 => 'POST-параметры должны передаваться в формате JSON',
         103 => 'Параметры не переданы',
         104 => 'Запрашиваемый метод API не найден',
-                
+
         301 => 'Moved permanently',
         400 => 'Bad request',
         401 => 'Unauthorized',
@@ -158,7 +165,7 @@ trait AmoAPIRequest
         500 => 'Internal server error',
         502 => 'Bad gateway',
         503 => 'Service unavailable',
-        
+
         // Ошибки возникающие при работе со сделками
         213 => 'Добавление сделок: пустой массив',
         214 => 'Добавление/Обновление сделок: пустой запрос',
@@ -166,7 +173,7 @@ trait AmoAPIRequest
         216 => 'Обновление сделок: пустой массив',
         217 => 'Обновление сделок: требуются параметры "id", "updated_at", "status_id", "name"',
         240 => 'Добавление/Обновление сделок: неверный параметр "id" дополнительного поля',
-        
+
         // Ошибки возникающие при работе с событиями
         218 => 'Добавление событий: пустой массив',
         221 => 'Список событий: требуется тип',
@@ -175,7 +182,7 @@ trait AmoAPIRequest
         223 => 'Добавление/Обновление событий: неверный запрашиваемый метод (GET вместо POST)',
         224 => 'Обновление событий: пустой массив',
         225 => 'Обновление событий: события не найдены',
-        
+
         // Ошибки возникающие при работе с контактами
         201 => 'Добавление контактов: пустой массив',
         202 => 'Добавление контактов: нет прав',
@@ -190,7 +197,7 @@ trait AmoAPIRequest
         211 => 'Обновление контактов: дополнительное поле не найдено',
         212 => 'Обновление контактов: контакт не обновлён',
         219 => 'Список контактов: ошибка поиска, повторите запрос позднее',
-        
+
         // Ошибки возникающие при работе с задачами
         227 => 'Добавление задач: пустой массив',
         228 => 'Добавление/Обновление задач: пустой запрос',
@@ -295,8 +302,9 @@ trait AmoAPIRequest
 
     /**
      * Отправляет запрос к amoCRM API
+     * Обновлено для работы с API v4: добавлена поддержка методов PATCH и DELETE
      * @param string $query Путь в строке запроса
-     * @param string $type Тип запроса GET|POST|AJAX
+     * @param string $type Тип запроса GET|POST|PATCH|DELETE|AJAX
      * @param array $params Параметры запроса
      * @param string|null $subdomain Поддомен amoCRM
      * @return array|null
@@ -308,13 +316,13 @@ trait AmoAPIRequest
         if (! isset($subdomain)) {
             $subdomain = self::$lastSubdomain;
             if (! isset($subdomain)) {
-                throw new AmoAPIException("Необходима авторизация auth() или oAuth2()");
+                throw new AmoAPIException("Необходима авторизация auth(), oAuth2() или permanentToken()");
             }
         }
 
         // Проверка наличия авторизации в поддомене
         if (! isset(self::$lastAuth[ $subdomain ])) {
-            throw new AmoAPIException("Не выполнена авторизация auth() или oAuth2() для поддомена {$subdomain}");
+            throw new AmoAPIException("Не выполнена авторизация auth(), oAuth2() или permanentToken() для поддомена {$subdomain}");
         }
 
         // Сохраняем параметры последнего запроса
@@ -324,7 +332,7 @@ trait AmoAPIRequest
             'params'    => $params,
             'subdomain' => $subdomain
         ];
-        
+
         // Увеличиваем счетчик числа отправленных запросов
         self::$requestCounter++;
 
@@ -345,13 +353,13 @@ trait AmoAPIRequest
 
                 // Добавляем заголовки HTTP
                 self::setHTTPHeaders($curl, $subdomain, false);
-    
+
                 // Отладочная информация
                 $requestInfo = " (GET: {$url})";
                 self::debug('['. self::$requestCounter . "] GET: {$url}");
-    
+
                 break;
-    
+
             case 'POST':
                 // Кодируем тело запроса
                 $jsonParams = json_encode($params);
@@ -371,10 +379,12 @@ trait AmoAPIRequest
                 $jsonParams = self::unescapeUnicode($jsonParams);
                 $requestInfo = " (POST: {$url} {$jsonParams})";
                 self::debug('['. self::$requestCounter . "] POST: {$url}" . PHP_EOL . $jsonParams);
-    
+
                 break;
 
                 case 'DELETE':
+                    // Метод DELETE добавлен для поддержки API v4
+                    // В v4 для удаления сущностей используется DELETE метод с массивом ID в теле запроса
                     // Кодируем тело запроса
                     $jsonParams = json_encode($params);
                     if ($jsonParams === false) {
@@ -385,18 +395,20 @@ trait AmoAPIRequest
                     }
                     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
                     curl_setopt($curl, CURLOPT_POSTFIELDS, $jsonParams);
-    
+
                     // Добавляем заголовки HTTP
                     self::setHTTPHeaders($curl, $subdomain, true);
-    
+
                     // Отладочная информация
                     $jsonParams = self::unescapeUnicode($jsonParams);
                     $requestInfo = " (DELETE: {$url} {$jsonParams})";
                     self::debug('['. self::$requestCounter . "] DELETE: {$url}" . PHP_EOL . $jsonParams);
-        
+
                     break;
 
                 case 'PATCH':
+                    // Метод PATCH добавлен для поддержки API v4
+                    // В v4 для обновления сущностей используется PATCH метод вместо POST с оберткой update
                     // Кодируем тело запроса
                     $jsonParams = json_encode($params);
                     if ($jsonParams === false) {
@@ -407,17 +419,17 @@ trait AmoAPIRequest
                     }
                     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PATCH');
                     curl_setopt($curl, CURLOPT_POSTFIELDS, $jsonParams);
-    
+
                     // Добавляем заголовки HTTP
                     self::setHTTPHeaders($curl, $subdomain, true);
-    
+
                     // Отладочная информация
                     $jsonParams = self::unescapeUnicode($jsonParams);
                     $requestInfo = " (PATCH: {$url} {$jsonParams})";
                     self::debug('['. self::$requestCounter . "] PATCH: {$url}" . PHP_EOL . $jsonParams);
-        
+
                     break;
-    
+
             case 'AJAX':
                 // Кодируем тело запроса
                 $ajaxParams = http_build_query($params);
@@ -434,7 +446,8 @@ trait AmoAPIRequest
 
                 break;
 
-            // Допустимые методы запроса только GET, POST и AJAX
+            // Допустимые методы запроса: GET, POST, PATCH, DELETE и AJAX
+            // PATCH и DELETE добавлены для поддержки API v4
             default:
                 throw new AmoAPIException("Недопустимый метод запроса {$type}");
         }
@@ -461,9 +474,22 @@ trait AmoAPIRequest
 
         // Если код статуса HTTP 401 (401 Unauthorized), то выполняем, при необходимости, повторную авторизацию
         if ($code === 401) {
-            if (self::$lastAuth[ $subdomain ]['is_oauth2']) { // Если авторизация по протоколу OAuth 2.0
+            // Если авторизация по долгосрочному токену, то повторная авторизация не требуется
+            // Долгосрочные токены не обновляются, если токен недействителен - это ошибка конфигурации
+            if (isset(self::$lastAuth[$subdomain]['is_permanent_token']) 
+                && self::$lastAuth[$subdomain]['is_permanent_token'] === true) {
+                throw new AmoAPIException(
+                    "Долгосрочный токен недействителен или был отозван для поддомена {$subdomain}. " .
+                    "Проверьте токен в настройках аккаунта amoCRM. {$requestInfo} (Response: {$result})",
+                    401
+                );
+            }
+            
+            if (isset(self::$lastAuth[$subdomain]['is_oauth2']) && self::$lastAuth[$subdomain]['is_oauth2']) {
+                // Если авторизация по протоколу OAuth 2.0
                 $response = self::reOAuth2();
-            } else { // Если авторизация по API ключу пользователя
+            } else {
+                // Если авторизация по API ключу пользователя
                 $response = self::reAuth();
             }
             if ($response !== true) {
@@ -574,8 +600,14 @@ trait AmoAPIRequest
         // Список НТТP-заголовков
         $headers = [];
 
+        // Если авторизация по долгосрочному токену, то добавляем заголовок Authorization:
+        if (isset(self::$lastAuth[$subdomain]['is_permanent_token']) 
+            && self::$lastAuth[$subdomain]['is_permanent_token'] === true
+            && !empty(self::$lastAuth[$subdomain]['permanent_token'])) {
+            $headers[] = 'Authorization: Bearer ' . self::$lastAuth[$subdomain]['permanent_token'];
+        }
         // Если авторизация по протоколу OAuth 2.0, то добавляем заголовок Authorization:
-        if (self::$lastAuth[ $subdomain ]['is_oauth2']) {
+        elseif (isset(self::$lastAuth[$subdomain]['is_oauth2']) && self::$lastAuth[$subdomain]['is_oauth2']) {
             // Если установлен access token
             if (! empty(self::$lastAuth[ $subdomain ]['access_token'])) {
                 $headers[] = 'Authorization: Bearer ' . self::$lastAuth[ $subdomain ]['access_token'];
@@ -744,7 +776,7 @@ trait AmoAPIRequest
         // Проверяем каталог для хранения файлов блокировки
         $dir = __DIR__ . DIRECTORY_SEPARATOR . self::$lockEntityDir;
         self::checkDir($dir);
-        
+
         // Формируем полное имя файла блокировки
         $fileName = $amoObject->id . '.' . substr(strtolower(get_class($amoObject)), 10);
         $file = $dir . $fileName;
@@ -761,7 +793,7 @@ trait AmoAPIRequest
             if (flock($fh, LOCK_EX|LOCK_NB)) {
                 return [ 'fh' => $fh, 'file' => $file, 'fileName' => $fileName ];
             }
-            
+
             if (! fclose($fh)) {
                 throw new AmoAPIException("Не удалось закрыть lock-файл {$fileName}");
             }

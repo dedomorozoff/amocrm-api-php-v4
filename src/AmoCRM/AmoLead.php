@@ -2,8 +2,8 @@
 /**
  * Класс AmoLead. Содержит методы для работы со сделками.
  *
- * @author    andrey-tech
- * @copyright 2020-2021 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2020-2021 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *

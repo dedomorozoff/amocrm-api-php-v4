@@ -2,8 +2,8 @@
 /**
  * Трейт AmoAPIIncomingLead. Содержит методы для принятия или отклонения неразобранных сделок (заявок)
  *
- * @author    andrey-tech
- * @copyright 2020 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2020 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *
@@ -21,6 +21,7 @@ trait AmoAPIIncomingLeads
 {
     /**
      * Принимает неразобранные сделки (заявки)
+     * Обновлено для работы с API v4: обновлен эндпоинт и парсинг ответов
      * @param array $params Параметры заявок
      * @param bool $returnResponse Вернуть ответ сервера amoCRM
      * @param null $subdomain Поддомен amoCRM
@@ -28,10 +29,16 @@ trait AmoAPIIncomingLeads
      */
     public static function acceptIncomingLeads(array $params, bool $returnResponse = false, $subdomain = null)
     {
-        $response = self::request('/api/v2/incoming_leads/accept', 'POST', $params, $subdomain);
+        $response = self::request('/api/v4/leads/unsorted/accept', 'POST', $params, $subdomain);
 
         if (! $returnResponse) {
-            return $response['data'];
+            // В v4 ответ может быть в _embedded или напрямую в массиве
+            $items = self::getItems($response);
+            if (is_array($items) && !empty($items)) {
+                return $items;
+            }
+            // Fallback для совместимости со старым форматом
+            return $response['data'] ?? $response;
         }
 
         return $response;
@@ -39,6 +46,7 @@ trait AmoAPIIncomingLeads
 
     /**
      * Отклоняет неразобранные сделки (заявки)
+     * Обновлено для работы с API v4: обновлен эндпоинт и парсинг ответов
      * @param array $params Параметры заявок
      * @param bool $returnResponse Вернуть ответ сервера amoCRM
      * @param null $subdomain Поддомен amoCRM
@@ -46,10 +54,16 @@ trait AmoAPIIncomingLeads
      */
     public static function declineIncomingLeads(array $params, bool $returnResponse = false, $subdomain = null)
     {
-        $response = self::request('/api/v2/incoming_leads/decline', 'POST', $params, $subdomain);
+        $response = self::request('/api/v4/leads/unsorted/decline', 'POST', $params, $subdomain);
 
         if (! $returnResponse) {
-            return $response['data'];
+            // В v4 ответ может быть в _embedded или напрямую в массиве
+            $items = self::getItems($response);
+            if (is_array($items) && !empty($items)) {
+                return $items;
+            }
+            // Fallback для совместимости со старым форматом
+            return $response['data'] ?? $response;
         }
 
         return $response;
@@ -89,6 +103,7 @@ trait AmoAPIIncomingLeads
 
     /**
      * Сохраняет (добавляет) объекты классов-моделей сделок из неразобранного
+     * Обновлено для работы с API v4: данные передаются напрямую без обертки add
      * @param array|object $amoObjects Массив объектов AmoIncomingLead или объект AmoIncomingLead
      * @param bool $returnResponses Возвращать массив ответов сервера amoCRM вместо массива параметров сущностей
      * @param string $subdomain Поддомен amoCRM
@@ -101,9 +116,14 @@ trait AmoAPIIncomingLeads
             $amoObjects = [ $amoObjects ];
         }
 
+        // Группируем объекты по URL (все используют один URL для unsorted в v4)
         $parameters = [];
         foreach ($amoObjects as $object) {
-            $parameters[$object::URL]['add'][] = $object->getParams();
+            $url = $object::URL;
+            if (!isset($parameters[$url])) {
+                $parameters[$url] = [];
+            }
+            $parameters[$url][] = $object->getParams();
         }
 
         $responses = [];
@@ -120,7 +140,13 @@ trait AmoAPIIncomingLeads
         if (! $returnResponses) {
             $items = [];
             foreach ($responses as $response) {
-                $items = array_merge($items, $response['data']);
+                // В v4 ответ может быть в _embedded['unsorted'] или напрямую в массиве
+                $responseItems = self::getItems($response);
+                if (is_array($responseItems)) {
+                    $items = array_merge($items, $responseItems);
+                } elseif (isset($response['_embedded']['unsorted'])) {
+                    $items = array_merge($items, $response['_embedded']['unsorted']);
+                }
             }
             return $items;
         }

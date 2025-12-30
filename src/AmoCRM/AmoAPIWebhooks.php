@@ -2,8 +2,8 @@
 /**
  * Трейт AmoAPIWebhook. Содержит методы для добавления и удаления webhooks
  *
- * @author    andrey-tech
- * @copyright 2020 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2020 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *
@@ -20,6 +20,7 @@ trait AmoAPIWebhooks
 {
     /**
      * Добавляет один webhook или несколько webhooks (не более 100)
+     * Обновлено для работы с API v4: обновлен эндпоинт на /api/v4/webhooks/subscribe
      * @param array $params Параметры webhooks
      * @param bool $returnResponse Вернуть ответ сервера amoCRM
      * @param string $subdomian Поддомен amoCRM
@@ -36,7 +37,7 @@ trait AmoAPIWebhooks
             'subscribe' => $params
         ];
 
-        $response = self::request('/api/v2/webhooks/subscribe', 'POST', $params, $subdomain);
+        $response = self::request('/api/v4/webhooks/subscribe', 'POST', $params, $subdomain);
 
         if (! $returnResponse) {
             return self::getItems($response);
@@ -47,6 +48,7 @@ trait AmoAPIWebhooks
 
     /**
      * Удаляет один webhook или несколько webhooks (не более 100)
+     * Обновлено для работы с API v4: обновлен эндпоинт на /api/v4/webhooks/unsubscribe
      * @param array $params Параметры webhooks
      * @param bool $returnResponse Вернуть ответ сервера amoCRM
      * @param string $subdomian Поддомен amoCRM
@@ -63,7 +65,7 @@ trait AmoAPIWebhooks
             'unsubscribe' => $params
         ];
 
-        $response = self::request('/api/v2/webhooks/unsubscribe', 'POST', $params, $subdomain);
+        $response = self::request('/api/v4/webhooks/unsubscribe', 'POST', $params, $subdomain);
 
         if (! $returnResponse) {
             return self::getItems($response);

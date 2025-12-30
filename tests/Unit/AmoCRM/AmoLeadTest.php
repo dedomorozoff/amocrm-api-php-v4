@@ -14,7 +14,7 @@ class AmoLeadTest extends TestCase
      */
     private $amoLead;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->amoLead = new AmoLead();
@@ -127,5 +127,52 @@ class AmoLeadTest extends TestCase
         $this->amoLead->addCompany(12345678);
         $this->assertEquals([ 'id' => 12345678 ], $this->amoLead->company);
         $this->assertEquals([], $this->amoLead->unlink);
+    }
+
+    // getParams() tests - проверка структуры для v4 API
+
+    public function testGetParamsIncludesCompanyId()
+    {
+        $this->amoLead->addCompany(12345678);
+        $params = $this->amoLead->getParams();
+        $this->assertEquals(12345678, $params['company_id']);
+    }
+
+    public function testGetParamsIncludesEmbeddedContacts()
+    {
+        $this->amoLead->addContacts([12345678, 12345679]);
+        $params = $this->amoLead->getParams();
+        $this->assertArrayHasKey('_embedded', $params);
+        $this->assertArrayHasKey('contacts', $params['_embedded']);
+    }
+
+    public function testGetParamsIncludesUnlink()
+    {
+        $this->amoLead->contacts = ['id' => [12345678]];
+        $this->amoLead->removeContacts(12345678);
+        $params = $this->amoLead->getParams();
+        $this->assertArrayHasKey('unlink', $params);
+        $this->assertEquals(['contacts_id' => [12345678]], $params['unlink']);
+    }
+
+    public function testGetParamsIncludesStatusId()
+    {
+        $this->amoLead->status_id = 142;
+        $params = $this->amoLead->getParams();
+        $this->assertEquals(142, $params['status_id']);
+    }
+
+    public function testGetParamsIncludesPipelineId()
+    {
+        $this->amoLead->pipeline_id = 123;
+        $params = $this->amoLead->getParams();
+        $this->assertEquals(123, $params['pipeline_id']);
+    }
+
+    // URL constant test
+
+    public function testUrlConstant()
+    {
+        $this->assertEquals('/api/v4/leads', AmoLead::URL);
     }
 }

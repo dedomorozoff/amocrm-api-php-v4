@@ -1,10 +1,17 @@
 <?php
 
-namespace AmoCRM\DataBase;
-
 /**
  * Класс DataBaseConnection создает соединение с базой данных
- * 
+ *
+ * @author    dedomorozoff
+ * @copyright 2024 dedomorozoff
+ * @see https://github.com/andrey-tech/amocrm-api-php
+ * @license   MIT
+ *
+ * @version 1.0.0
+ *
+ * v1.0.0 (2024) Начальный релиз
+ *
  * Для корректного соединения требуется передать в конструктор класса массив с конфигурационными данными базы данных с ключами:
  * host - хост на котором расположена БД
  * port = порт на котором расположена БД
@@ -12,6 +19,7 @@ namespace AmoCRM\DataBase;
  * user - имя пользователя
  * password - пароль пользователя
  */
+namespace AmoCRM\DataBase;
 
 class DataBaseConnection {
 

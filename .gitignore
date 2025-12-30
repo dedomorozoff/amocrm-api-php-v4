@@ -7,3 +7,4 @@ tokens/
 vendor/
 *.log
 *.bak
+build/releases/

@@ -2,8 +2,8 @@
 /**
  * Класс AmoCatalogElement. Содерит методы для работы с элементами списка (каталога).
  *
- * @author    andrey-tech
- * @copyright 2020 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2020 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *

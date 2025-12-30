@@ -2,8 +2,8 @@
 /**
  * Класс AmoIncomingLead. Содержит методы для работы с неразобранными сделками (заявками)
  *
- * @author    andrey-tech
- * @copyright 2020 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2020 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *
@@ -32,7 +32,7 @@ abstract class AmoIncomingLead extends AmoObject
      * Путь для запроса к API
      * @var string
      */
-    const URL = '/api/v2/incoming_leads';
+    const URL = '/api/v4/leads/unsorted';
 
     /**
      * @var int
@@ -201,23 +201,34 @@ abstract class AmoIncomingLead extends AmoObject
 
     /**
      * Сохраняет сделку в amoCRM
+     * Обновлено для работы с API v4: данные передаются напрямую без обертки add
      * @param  bool $returnResponse Вернуть ответ сервера вместо массива UID добавленных заявок
      * @return mixed
      */
     public function save(bool $returnResponse = false)
     {
-        $params = [ 'add' => [ $this->getParams() ] ];
+        // В v4 данные передаются напрямую как массив объектов
+        $params = [$this->getParams()];
         $response = AmoAPI::request($this::URL, 'POST', $params, $this->subdomain);
 
-        $status = $response['status'] ?? null;
-        if ($status != 'success') {
+        // В v4 ответ имеет структуру с _embedded или напрямую массив
+        $items = AmoAPI::getItems($response);
+        if (empty($items) && empty($response)) {
             throw new AmoAPIException(
-                "Не удалось добавить сделку в неразобранное: " . print_r($response, true)
+                "Не удалось добавить сделку в неразобранное: " . print_r($params, true)
             );
         }
 
         if (! $returnResponse) {
-            return $response['data'];
+            // Возвращаем UID из ответа (в v4 это может быть в разных местах)
+            if (isset($response['_embedded']['unsorted'])) {
+                return array_column($response['_embedded']['unsorted'], 'uid');
+            }
+            if (is_array($items) && !empty($items)) {
+                return array_column($items, 'uid');
+            }
+            // Fallback для совместимости
+            return isset($response['data']) ? $response['data'] : [];
         }
 
         return $response;

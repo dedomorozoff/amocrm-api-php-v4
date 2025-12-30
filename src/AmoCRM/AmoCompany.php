@@ -2,8 +2,8 @@
 /**
  * Класс AmoCompany. Содерит методы для работы с компаниями.
  *
- * @author    andrey-tech
- * @copyright 2020 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2020 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *
@@ -161,15 +161,29 @@ class AmoCompany extends AmoObject
 
     /**
      * Возвращает первый номер телефона из дополнительных полей
+     * Обновлено для работы с API v4: используется custom_fields_values
      * @return string|null
      */
     public function getPhone()
     {
-        foreach ($this->custom_fields as $customField) {
-            if (! isset($customField['code']) || $customField['code'] !== 'PHONE') {
-                continue;
+        // В v4 используется custom_fields_values, но при получении данных может быть custom_fields
+        $fields = $this->custom_fields_values ?? [];
+        
+        foreach ($fields as $customField) {
+            // Проверяем по code или field_id
+            if (isset($customField['field_code']) && $customField['field_code'] === 'PHONE') {
+                if (isset($customField['values'][0]['value'])) {
+                    return $customField['values'][0]['value'];
+                }
             }
-            return $customField['values'][0]['value'];
+            // Альтернативная проверка по структуре значений
+            if (isset($customField['values']) && is_array($customField['values'])) {
+                foreach ($customField['values'] as $value) {
+                    if (isset($value['value']) && preg_match('/^\+?\d/', $value['value'])) {
+                        return $value['value'];
+                    }
+                }
+            }
         }
 
         return null;
@@ -177,15 +191,29 @@ class AmoCompany extends AmoObject
 
     /**
      * Возвращает первый адрес электронной почты из дополнительных полей
+     * Обновлено для работы с API v4: используется custom_fields_values
      * @return string|null
      */
     public function getEmail()
     {
-        foreach ($this->custom_fields as $customField) {
-            if (! isset($customField['code']) || $customField['code'] !== 'EMAIL') {
-                continue;
+        // В v4 используется custom_fields_values, но при получении данных может быть custom_fields
+        $fields = $this->custom_fields_values ?? [];
+        
+        foreach ($fields as $customField) {
+            // Проверяем по code или field_id
+            if (isset($customField['field_code']) && $customField['field_code'] === 'EMAIL') {
+                if (isset($customField['values'][0]['value'])) {
+                    return $customField['values'][0]['value'];
+                }
             }
-            return $customField['values'][0]['value'];
+            // Альтернативная проверка по структуре значений (email содержит @)
+            if (isset($customField['values']) && is_array($customField['values'])) {
+                foreach ($customField['values'] as $value) {
+                    if (isset($value['value']) && strpos($value['value'], '@') !== false) {
+                        return $value['value'];
+                    }
+                }
+            }
         }
 
         return null;

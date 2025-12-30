@@ -2,8 +2,8 @@
 /**
  * Класс AmoIncomingLeadForm. Содержит методы для работы с неразобранными сделками (заявками), созданными из веб-форм
  *
- * @author    andrey-tech
- * @copyright 2020 andrey-tech
+ * @author    andrey-tech, dedomorozoff
+ * @copyright 2020 andrey-tech, 2024 dedomorozoff
  * @see https://github.com/andrey-tech/amocrm-api-php
  * @license   MIT
  *
@@ -24,5 +24,5 @@ class AmoIncomingLeadForm extends AmoIncomingLead
      * Путь для запроса к API
      * @var string
      */
-    const URL = '/api/v2/incoming_leads/form';
+    const URL = '/api/v4/leads/unsorted';
 }

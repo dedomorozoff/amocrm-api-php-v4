@@ -1,4 +1,16 @@
 <?php
+/**
+ * Класс DatabaseStorage. Реализует хранение токенов в базе данных
+ *
+ * @author    dedomorozoff
+ * @copyright 2024 dedomorozoff
+ * @see https://github.com/andrey-tech/amocrm-api-php
+ * @license   MIT
+ *
+ * @version 1.0.0
+ *
+ * v1.0.0 (2024) Начальный релиз
+ */
 namespace AmoCRM\TokenStorage;
 
 use AmoCRM\DataBase\DataBaseConnection;
